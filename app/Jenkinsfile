@@ -38,11 +38,11 @@ pipeline {
                 steps {
 			    sshagent(['ec2-t1']) {
 			        
-				    sh 'ssh -o StrictHostKeyChecking=no ec2-user@54.227.49.157 '
+				    sh 'ssh -o StrictHostKeyChecking=no ec2-user@54.226.219.225 '
 				    sh "docker-compose pull  && docker-compose up -d"
 			    }
                 sshagent(['ec2-t2']) {
-				    sh 'ssh -o StrictHostKeyChecking=no ec2-user@54.89.151.222 '
+				    sh 'ssh -o StrictHostKeyChecking=no ec2-user@54.227.91.39 '
 				    sh "docker-compose pull  && docker-compose up -d"
 			    }
 			}
