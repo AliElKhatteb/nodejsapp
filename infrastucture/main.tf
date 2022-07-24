@@ -1,15 +1,10 @@
 provider "aws" {
   region = var.region
-  access_key = "AKIAVDTENUFVYKO2JPX3"
-  secret_key = "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"
+  access_key = "AKIAVDTENUFV3Y7YG2IA"
+  secret_key = "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"
 }
 
 locals {
-  user_data = <<-EOT
-  #!/bin/bash
-  echo "Hello Terraform!"
-  EOT
-
   tags = {
     Owner       = "user"
     Environment = "dev"
@@ -38,6 +33,26 @@ resource "aws_subnet" "database_subnet2" {
   vpc_id     = module.vpc.vpc_id
   cidr_block = "10.99.7.0/24"
   availability_zone = "${var.region}b"
+}
+resource "aws_db_subnet_group" "default" {
+  name       = "main"
+  subnet_ids = [aws_subnet.database_subnet2.id, aws_subnet.database_subnet1.id]
+
+  tags = {
+    Name = "My DB subnet group"
+  }
+}
+resource "aws_db_instance" "default" {
+  allocated_storage    = 10
+  engine               = "mysql"
+  engine_version       = "5.7"
+  instance_class       = "db.t3.micro"
+  name                 = "mydb"
+  username              = "ali"
+  password             = "Just4trial1999"
+  parameter_group_name = "default.mysql5.7"
+  skip_final_snapshot  = true
+  db_subnet_group_name = aws_db_subnet_group.default.name
 }
 
 data "aws_ami" "amazon_linux" {
@@ -107,9 +122,6 @@ resource "aws_lb_listener" "lb_listener_http" {
 }
 
 
-
-
-
 resource "tls_private_key" "pk" {
   algorithm = "RSA"
   rsa_bits  = 4096
@@ -137,25 +149,7 @@ resource  "aws_instance" "docker-machine1" {
   vpc_security_group_ids      = [module.security_group.security_group_id]
   associate_public_ip_address = true
   key_name = aws_key_pair.kp.key_name
-  user_data = <<-EOT
-   #!/bin/bash
-   sudo yum update -y 
-
-   sudo amazon-linux-extras install docker 
-
-   sudo yum install docker 
-
-   sudo service docker start 
-
-   sudo usermod -a -G docker ec2-user
-   sudo curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
-
-   sudo chmod +x /usr/local/bin/docker-compose
-   sudo yum install git -y
-   git clone https://github.com/AliElKhatteb/nodejsapp.git
-   cd nodejsapp
-   docker-compose up -d
-  EOT
+  user_data = file("./docker-machine-userdata.sh")
 
   tags = {
         Name = "${var.machine-name}-t1"
@@ -169,17 +163,7 @@ resource  "aws_instance" "jenkins-master" {
   vpc_security_group_ids      = [module.security_group.security_group_id]
   associate_public_ip_address = true
   key_name = aws_key_pair.kp.key_name
-  user_data = <<-EOT
-   #!/bin/bash
-    sudo yum update -y
-    sudo yum install wget
-    sudo amazon-linux-extras install java-openjdk11
-    sudo amazon-linux-extras install epel -y
-    sudo wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat/jenkins.repo
-    sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
-    sudo yum install jenkins -y
-    sudo service jenkins start
-  EOT
+  user_data = file("./jenkins-userdata.sh")
 
   tags = {
         Name = "Jenkins"
@@ -193,25 +177,7 @@ resource  "aws_instance" "docker-machine2" {
   vpc_security_group_ids      = [module.security_group.security_group_id]
   associate_public_ip_address = true
   key_name = aws_key_pair.kp.key_name
-  user_data = <<-EOT
-   #!/bin/bash
-   sudo yum update -y 
-
-   sudo amazon-linux-extras install docker 
-
-   sudo yum install docker 
-
-   sudo service docker start 
-
-   sudo usermod -a -G docker ec2-user
-   sudo curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
-
-   sudo chmod +x /usr/local/bin/docker-compose
-   sudo yum install git -y
-   git clone https://github.com/AliElKhatteb/nodejsapp.git
-   cd nodejsapp
-   docker-compose up -d
-  EOT
+  user_data = file("./docker-machine-userdata.sh")
 
   tags = {
         Name = "${var.machine-name}-t2"

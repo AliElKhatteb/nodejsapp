@@ -4,11 +4,7 @@ pipeline {
         stage ('Build') {
             steps {
                 dir("app") {
-<<<<<<< HEAD
-             bat 'npm install'
-=======
              sh 'npm install'
->>>>>>> d0eafc7488bc63865512fc715cfaece8506aecbb
             }
                 
             }
@@ -19,17 +15,10 @@ pipeline {
         stage ('Docker-build') {
             steps {
                  dir("app") {
-<<<<<<< HEAD
-                 bat "docker build -t alielkhatteb/nodeserver:latest ."
-               }
-               dir("nginx") {
-                 bat "docker build -t alielkhatteb/nginx:latest ../nginx"   
-=======
                  sh "docker build -t alielkhatteb/nodeserver:latest ."
                }
                dir("nginx") {
                  sh "docker build -t alielkhatteb/nginx:latest ../nginx"   
->>>>>>> d0eafc7488bc63865512fc715cfaece8506aecbb
                }  
            }
         }
@@ -37,15 +26,9 @@ pipeline {
         stage("DockerPush"){
             steps {
             withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerhub')]) {
-<<<<<<< HEAD
-                    bat "docker login -u alielkhatteb -p ${dockerhub}"
-                    bat "docker push alielkhatteb/nodeserver:latest"
-                    bat "docker push alielkhatteb/nginx:latest"
-=======
                     sh "docker login -u alielkhatteb -p ${dockerhub}"
                     sh "docker push alielkhatteb/nodeserver:latest"
                     sh "docker push alielkhatteb/nginx:latest"
->>>>>>> d0eafc7488bc63865512fc715cfaece8506aecbb
             } 
             }
         }
@@ -54,10 +37,13 @@ pipeline {
 
                 steps {
 			    sshagent(['ec2-t1']) {
-				    sh 'ssh -o StrictHostKeyChecking=no ec2-user@put ip here "docker-compose up -d"'
+			        
+				    sh 'ssh -o StrictHostKeyChecking=no ec2-user@18.234.231.142 '
+				    sh "docker-compose pull  && docker-compose up -d"
 			    }
                 sshagent(['ec2-t2']) {
-				    sh 'ssh -o StrictHostKeyChecking=no ec2-user@put ip here "docker-compose up -d"'
+				    sh 'ssh -o StrictHostKeyChecking=no ec2-user@3.93.173.19 '
+				    sh "docker-compose pull  && docker-compose up -d"
 			    }
 			}
         }
