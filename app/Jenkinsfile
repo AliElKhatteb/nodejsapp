@@ -37,6 +37,7 @@ pipeline {
 
                 steps {
 			    sshagent(['ec2-t1']) {
+<<<<<<< HEAD
 			        
 				    sh 'ssh -o StrictHostKeyChecking=no ec2-user@18.234.231.142 '
 				    sh "docker-compose pull  && docker-compose up -d"
@@ -44,6 +45,12 @@ pipeline {
                 sshagent(['ec2-t2']) {
 				    sh 'ssh -o StrictHostKeyChecking=no ec2-user@3.93.173.19 '
 				    sh "docker-compose pull  && docker-compose up -d"
+=======
+				    sh 'ssh -o StrictHostKeyChecking=no ec2-user@put ip here "docker-compose pull  && docker-compose up -d"'
+			    }
+                sshagent(['ec2-t2']) {
+				    sh 'ssh -o StrictHostKeyChecking=no ec2-user@put ip here "docker-compose pull  && docker-compose up -d"'
+>>>>>>> 879d39eb4a0b959507f13d15740b961779e6298c
 			    }
 			}
         }
